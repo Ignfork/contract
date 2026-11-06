@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="en">
+<title>contract</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Generate custom Solana wallet and token mint addresses in your browser, then launch your memecoin on Pump.fun with your own letters.">
+<meta name="theme-color" content="#00F5A0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: chunky sticker-board — hard ink outlines, offset shadows, one colour band per section, generator card as the hero's centrepiece */
+:root{
+  --mint:#00F5A0; --mint-deep:#00C985; --ink:#0B0B12; --cream:#FFF6E9; --paper:#FFFDF8;
+  --pink:#FF5FA2; --sun:#FFD23F; --violet:#8B5CF6; --sky:#3EC5FF; --tang:#FF8A3D; --lime:#C6FF3D;
+  --muted:#3d4a44; --line:3px solid var(--ink);
+  --display:"Bagel Fat One","Arial Rounded MT Bold","Trebuchet MS",sans-serif;
+  --body:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:22px; --sh:6px 6px 0 var(--ink); --sh-sm:3px 3px 0 var(--ink);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--mint);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;
+  background-image:radial-gradient(rgba(11,11,18,.10) 1.2px,transparent 1.3px);background-size:22px 22px;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--mint)}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--violet);outline-offset:3px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);font-weight:400;line-height:.95;margin:0;text-wrap:balance;letter-spacing:.01em}
+.label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+.chunk{border:var(--line);border-radius:var(--r);box-shadow:var(--sh)}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:var(--line);border-radius:999px;padding:10px 18px;
+  font-weight:800;background:var(--mint);box-shadow:var(--sh-sm);text-decoration:none;transition:transform .12s,box-shadow .12s;position:relative}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.dark{background:var(--ink);color:var(--cream)}
+.btn.cream{background:var(--cream)}
+.btn.pink{background:var(--pink)}
+.btn.sun{background:var(--sun)}
+.btn[disabled]{opacity:.55;cursor:not-allowed;transform:none;box-shadow:var(--sh-sm)}
+
+/* ---------- nav ---------- */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;padding-block:10px}
+.nav{display:flex;align-items:center;gap:14px;background:var(--cream);border:var(--line);border-radius:26px;box-shadow:0 5px 0 var(--ink);padding:8px 10px}
+.brand{display:flex;align-items:center;gap:8px;text-decoration:none;font-family:var(--display);font-size:26px}
+.brand svg{width:40px;height:40px}
+.nav-links{display:flex;gap:4px;margin:0 auto}
+.nav-links a{text-decoration:none;font-weight:600;font-size:14px;padding:8px 12px;border-radius:999px}
+.nav-links a:hover{background:var(--sun)}
+.nav-right{display:flex;gap:8px;align-items:center}
+.xbtn{width:40px;height:40px;border-radius:50%;background:var(--ink);color:var(--cream);display:grid;place-items:center;border:var(--line)}
+.xbtn svg{width:16px;height:16px;fill:currentColor}
+@media (max-width:820px){.nav-links{display:none}.nav-right{margin-left:auto}}
+
+/* ---------- hero ---------- */
+.hero{display:grid;grid-template-columns:1.05fr 1fr;gap:40px;padding-block:28px 40px;align-items:start}
+@media (max-width:940px){.hero{grid-template-columns:1fr}}
+.hero-left{min-width:0;position:relative}
+.logo-tile{display:inline-flex;position:relative}
+.logo-tile svg{width:132px;height:132px;filter:drop-shadow(6px 6px 0 var(--ink));animation:bob 4s ease-in-out infinite}
+.chip{display:inline-block;background:var(--mint);border:var(--line);border-radius:10px;padding:5px 9px;box-shadow:var(--sh-sm)}
+.logo-tile .chip{position:absolute;left:140px;bottom:-4px;transform:rotate(-6deg)}
+.headline{margin-top:28px;font-size:clamp(52px,8.6vw,104px)}
+.headline .l1{display:block;color:var(--ink)}
+.headline .l2{display:block;color:var(--cream);-webkit-text-stroke:3px var(--ink);paint-order:stroke fill;text-shadow:5px 6px 0 var(--ink)}
+.headline .l2 span{display:inline-block;animation:wig 3.6s ease-in-out infinite}
+.lede{font-size:19px;max-width:30ch;margin:18px 0 12px;color:#103a2c}
+.notrand{display:flex;align-items:center;gap:10px;font-size:13px;color:#18493a}
+.notrand b{background:var(--ink);color:var(--mint);padding:5px 10px;border-radius:999px;font-family:var(--mono);font-size:11px;letter-spacing:.12em}
+.mascot{margin-top:16px;width:min(380px,100%)}
+@keyframes bob{50%{transform:translateY(-8px) rotate(-2deg)}}
+@keyframes wig{0%,100%{transform:rotate(0)}50%{transform:rotate(-1.5deg)}}
+
+/* ---------- generator card ---------- */
+.gen{background:var(--cream);border:4px solid var(--ink);border-radius:30px;box-shadow:0 10px 0 var(--ink);padding:24px;position:relative;min-width:0}
+.gen::before{content:"";position:absolute;inset:-14px -14px auto auto;width:62px;height:62px;border-radius:50%;background:var(--pink);border:var(--line);box-shadow:var(--sh-sm);
+  background-image:radial-gradient(circle at 50% 50%,var(--sun) 0 9px,transparent 10px)}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#f2ede4;border:var(--line);border-radius:999px;padding:6px}
+.tab{border:0;background:transparent;border-radius:999px;padding:10px;font-weight:800;font-size:14px;display:flex;gap:8px;justify-content:center;align-items:center}
+.tab[aria-selected="true"]{background:var(--mint);border:var(--line);padding:7px;box-shadow:0 3px 0 var(--ink)}
+.tab .ico{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:12px;border:2px solid var(--ink)}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.field label{display:block;font-weight:800;font-size:13px;margin-bottom:6px}
+.field input{width:100%;border:var(--line);border-radius:14px;padding:12px 14px;font-family:var(--mono);font-size:16px;background:var(--paper);color:var(--ink)}
+.field input:focus{outline:none;box-shadow:0 0 0 4px var(--sun)}
+.field input.bad{background:#ffe1ea;box-shadow:0 0 0 4px var(--pink)}
+.toggle-row{display:flex;align-items:center;gap:12px;margin:16px 0;font-weight:800;font-size:14px}
+.switch{width:48px;height:28px;border:var(--line);border-radius:999px;background:var(--paper);position:relative;padding:0;flex:none}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border:2px solid var(--ink);border-radius:50%;background:var(--paper);transition:left .18s,background .18s}
+.switch[aria-checked="true"]{background:var(--violet)}
+.switch[aria-checked="true"]::after{left:22px;background:var(--sun)}
+.preview{display:flex;align-items:center;gap:8px;border:var(--line);border-radius:16px;padding:12px 14px;background:var(--paper);font-family:var(--mono);font-size:17px;overflow:hidden}
+.preview .pc{background:var(--mint);border:2px solid var(--ink);border-radius:6px;padding:1px 4px;font-weight:700;white-space:nowrap}
+.preview .sc{background:var(--pink);border:2px solid var(--ink);border-radius:6px;padding:1px 4px;font-weight:700;white-space:nowrap;margin-left:auto}
+.preview .dots{flex:1;min-width:0;overflow:hidden;white-space:nowrap;color:#9a958c;letter-spacing:.35em;text-align:center}
+.err{color:#c21656;font-weight:700;font-size:13px;min-height:0;margin-top:8px}
+.est{margin-top:14px;border:3px dashed var(--ink);border-radius:16px;padding:14px;background:#f8f5ef}
+.est strong{display:block;font-size:20px;margin:8px 0 4px;font-weight:800;font-variant-numeric:tabular-nums}
+.est p{margin:0;font-size:12.5px;color:#5b574f}
+.fee{margin-top:14px;border:var(--line);border-radius:16px;padding:12px 14px;background:var(--mint);display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center}
+.fee .amt{font-family:var(--display);font-size:24px;grid-row:span 1}
+.fee p{grid-column:1/-1;margin:0;font-size:12.5px}
+.fee.free{background:var(--lime)}
+.fee.nope{background:#ffd3e2}
+.go{width:100%;margin-top:16px;padding:16px;font-size:18px;font-family:var(--display);font-weight:400;letter-spacing:.02em;box-shadow:0 6px 0 var(--ink);border-radius:18px;overflow:hidden}
+.go::before{content:"";position:absolute;top:7px;left:14px;width:34px;height:7px;border-radius:9px;background:rgba(255,255,255,.75)}
+.go:hover{box-shadow:0 8px 0 var(--ink)}
+.small{text-align:center;font-size:12.5px;color:#5b574f;margin:12px 0 0}
+
+/* ---------- marquee ---------- */
+.marquee{border-block:4px solid var(--ink);background:var(--ink);overflow:hidden;transform:rotate(-1.2deg);margin:10px -20px 0}
+.mq-track{display:flex;gap:16px;padding:12px 0;width:max-content;animation:mq 34s linear infinite}
+.mq-track span{font-family:var(--mono);font-weight:700;font-size:15px;padding:6px 14px;border-radius:999px;border:2px solid var(--cream);white-space:nowrap}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* ---------- sections ---------- */
+section{position:relative}
+.band{padding-block:84px;border-top:4px solid var(--ink)}
+.band.sun{background:var(--sun)}
+.band.violet{background:var(--violet);color:var(--cream)}
+.band.ink{background:var(--ink);color:var(--cream);background-image:radial-gradient(rgba(255,246,233,.08) 1.2px,transparent 1.3px);background-size:22px 22px}
+.band.sky{background:var(--sky)}
+.band.pink{background:var(--pink)}
+.band.cream{background:var(--cream)}
+.band.tang{background:var(--tang)}
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:36px}
+.sec-head h2{font-size:clamp(40px,6vw,70px)}
+.eyebrow{display:inline-block;margin-bottom:12px;background:var(--cream);color:var(--ink);border:var(--line);border-radius:999px;padding:5px 12px;box-shadow:var(--sh-sm)}
+
+/* how it works */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media (max-width:860px){.steps{grid-template-columns:1fr}}
+.step{background:var(--cream);padding:24px;position:relative;min-width:0}
+.step:nth-child(2){transform:rotate(1deg)}
+.step:nth-child(3){transform:rotate(-1deg)}
+.step .num{position:absolute;top:-20px;left:20px;width:46px;height:46px;border-radius:50%;border:var(--line);display:grid;place-items:center;font-family:var(--display);font-size:22px;box-shadow:var(--sh-sm)}
+.step:nth-child(1) .num{background:var(--mint)}.step:nth-child(2) .num{background:var(--pink)}.step:nth-child(3) .num{background:var(--sky)}
+.step h3{font-size:28px;margin:16px 0 8px}
+.step p{margin:0 0 14px;color:#4a463f}
+.step .demo{border:var(--line);border-radius:14px;padding:12px;background:var(--paper);font-family:var(--mono);font-size:14px;min-height:54px;display:flex;align-items:center;gap:6px;overflow:hidden}
+.demo .ticker{white-space:nowrap;color:#7a766d;overflow:hidden}
+.pumpico{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--mint) 50%,var(--cream) 50%);border:var(--line)}
+
+/* token */
+.token{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start}
+@media (max-width:760px){.token{grid-template-columns:1fr}}
+.token .coin{width:150px;height:150px;border-radius:50%;background:var(--sun);border:4px solid var(--ink);box-shadow:var(--sh);display:grid;place-items:center;animation:spin 9s linear infinite}
+.token .coin svg{width:96px;height:96px}
+@keyframes spin{0%{transform:rotateY(0)}100%{transform:rotateY(360deg)}}
+.ca-box{background:var(--cream);color:var(--ink);padding:18px;margin-top:16px}
+.ca-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.ca-row code{font-family:var(--mono);font-size:15px;background:var(--paper);border:2px solid var(--ink);border-radius:10px;padding:8px 10px;flex:1;min-width:0;overflow-wrap:anywhere}
+.mets{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+@media (max-width:640px){.mets{grid-template-columns:repeat(2,1fr)}}
+.met{background:var(--paper);color:var(--ink);border:var(--line);border-radius:16px;padding:12px;box-shadow:var(--sh-sm)}
+.met b{display:block;font-family:var(--display);font-size:22px;font-weight:400;margin-top:4px;font-variant-numeric:tabular-nums}
+.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.fine{font-size:13px;opacity:.85;margin-top:12px}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media (max-width:860px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{border:3px solid var(--cream);border-radius:22px;padding:22px;box-shadow:6px 6px 0 var(--cream);color:var(--ink)}
+.stat:nth-child(1){background:var(--mint)}.stat:nth-child(2){background:var(--pink)}.stat:nth-child(3){background:var(--sun)}.stat:nth-child(4){background:var(--sky)}
+.stat b{display:block;font-family:var(--display);font-size:clamp(34px,5vw,52px);font-weight:400;font-variant-numeric:tabular-nums;line-height:1;margin-top:10px;overflow-wrap:anywhere}
+
+/* pricing */
+.prices{display:grid;grid-template-columns:1fr 1.25fr;gap:24px}
+@media (max-width:860px){.prices{grid-template-columns:1fr}}
+.plan{background:var(--cream);padding:26px;min-width:0}
+.plan.mint{background:var(--paper)}
+.plan .tag{display:inline-block;border:2px solid var(--ink);border-radius:999px;padding:3px 10px;background:var(--lime)}
+.plan.mint .tag{background:var(--pink)}
+.plan h3{font-size:34px;margin:12px 0 4px}
+.plan .big{font-family:var(--display);font-size:44px;line-height:1}
+.plan .big small{font-family:var(--body);font-size:16px;font-weight:600}
+.plan ul{list-style:none;padding:0;margin:16px 0;display:grid;gap:8px}
+.plan li{display:flex;gap:10px;align-items:center;font-weight:600}
+.plan li::before{content:"✓";flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--ink);background:var(--mint);display:grid;place-items:center;font-size:12px;font-weight:800}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;border:var(--line);border-radius:14px;overflow:hidden;margin:12px 0;font-variant-numeric:tabular-nums;background:var(--paper)}
+.tbl td{padding:10px 12px;border-bottom:2px solid var(--ink);font-size:14px}
+.tbl tr:last-child td{border-bottom:0}
+.tbl td:last-child{text-align:right;font-family:var(--mono);font-weight:700}
+.tbl tr:nth-child(odd) td{background:#fbf3e3}
+
+/* gallery belt */
+.belt{position:relative;border:4px solid var(--ink);border-radius:28px;background:var(--ink);padding:26px 0 40px;overflow:hidden;box-shadow:var(--sh)}
+.belt::after{content:"";position:absolute;left:0;right:0;bottom:12px;height:14px;background:repeating-linear-gradient(90deg,#2b2b38 0 22px,#4b4b5c 22px 26px);animation:belt 1.2s linear infinite}
+@keyframes belt{to{background-position:26px 0}}
+.belt-track{display:flex;gap:16px;width:max-content;animation:mq 40s linear infinite;padding-left:16px}
+.belt:hover .belt-track{animation-play-state:paused}
+.card{width:230px;flex:none;background:var(--cream);border:var(--line);border-radius:18px;padding:14px;box-shadow:0 5px 0 #000}
+.card .addr{font-family:var(--mono);font-size:13px;overflow-wrap:anywhere;margin:8px 0}
+.card .addr em{font-style:normal;background:var(--mint);border-radius:4px;padding:0 2px}
+.card .addr i{font-style:normal;background:var(--pink);border-radius:4px;padding:0 2px}
+.card .meta{display:flex;justify-content:space-between;font-size:12px;font-weight:700}
+.card .k{border:2px solid var(--ink);border-radius:999px;padding:1px 8px;font-size:11px}
+.card.mine{background:var(--lime)}
+
+/* docs */
+.faq{display:grid;gap:12px;max-width:820px}
+.faq details{background:var(--paper);border:var(--line);border-radius:16px;box-shadow:var(--sh-sm);padding:4px 18px}
+.faq summary{cursor:pointer;font-weight:800;padding:12px 0;list-style:none;display:flex;justify-content:space-between;gap:12px}
+.faq summary::after{content:"+";font-family:var(--display);font-size:22px;line-height:1}
+.faq details[open] summary::after{content:"–"}
+.faq p{margin:0 0 14px;color:#3c3832;max-width:65ch}
+
+/* cta */
+.cta{text-align:center}
+.cta h2{font-size:clamp(48px,9vw,110px);color:var(--cream);-webkit-text-stroke:3px var(--ink);paint-order:stroke fill;text-shadow:6px 7px 0 var(--ink)}
+.cta p{font-size:20px;font-weight:600;margin:16px 0 24px}
+
+footer{background:var(--ink);color:var(--cream);padding-block:36px;border-top:4px solid var(--ink)}
+.foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+.foot a{color:var(--cream);text-decoration:none;font-weight:600;margin-right:16px}
+.foot small{opacity:.7}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:80;background:rgba(11,11,18,.6);display:grid;place-items:center;padding:20px max(16px,env(safe-area-inset-right,0px)) 20px max(16px,env(safe-area-inset-left,0px))}
+.sheet{background:var(--cream);border:4px solid var(--ink);border-radius:28px;box-shadow:0 10px 0 var(--ink);width:min(560px,100%);max-height:90vh;overflow:auto;padding:26px;position:relative}
+.sheet h3{font-size:34px;margin-bottom:6px}
+.prog{height:22px;border:var(--line);border-radius:999px;background:var(--paper);overflow:hidden;margin:16px 0}
+.prog i{display:block;height:100%;width:0;background:repeating-linear-gradient(45deg,var(--mint) 0 12px,var(--sky) 12px 24px);transition:width .3s;animation:stripes 1s linear infinite;background-size:34px 34px}
+@keyframes stripes{to{background-position:34px 0}}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pgrid div{border:2px solid var(--ink);border-radius:12px;padding:10px;background:var(--paper)}
+.pgrid b{display:block;font-family:var(--mono);font-size:16px;font-variant-numeric:tabular-nums}
+.live{font-family:var(--mono);font-size:13px;background:var(--ink);color:var(--mint);border-radius:12px;padding:10px;margin-top:12px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.result-addr{font-family:var(--mono);font-size:17px;background:var(--paper);border:var(--line);border-radius:14px;padding:14px;overflow-wrap:anywhere;margin:12px 0}
+.result-addr em{font-style:normal;background:var(--mint);border-radius:4px;padding:0 3px}
+.result-addr i{font-style:normal;background:var(--pink);border-radius:4px;padding:0 3px}
+.secret{font-family:var(--mono);font-size:12.5px;background:var(--ink);color:var(--sun);border-radius:12px;padding:12px;overflow-wrap:anywhere;filter:blur(6px);transition:filter .2s;user-select:none}
+.secret.show{filter:none;user-select:all}
+.warn{background:var(--sun);border:var(--line);border-radius:14px;padding:10px 12px;font-size:13.5px;font-weight:600;margin:12px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.close{position:absolute;top:14px;right:14px;width:38px;height:38px;border-radius:50%;border:var(--line);background:var(--pink);font-weight:800}
+.stampbig{width:90px;height:90px;margin:0 auto 6px;display:block;animation:stamp .7s ease-in-out infinite}
+@keyframes stamp{0%,100%{transform:translateY(-10px) rotate(-4deg)}50%{transform:translateY(6px) rotate(3deg)}}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:90;background:var(--ink);color:var(--cream);border:3px solid var(--cream);border-radius:999px;padding:10px 18px;font-weight:700;box-shadow:0 5px 0 var(--mint);max-width:calc(100% - 32px);text-align:center}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:95}
+
+/* mascot anims */
+.arm{animation:arm 1.6s ease-in-out infinite;transform-origin:250px 120px}
+@keyframes arm{0%,100%{transform:translateY(0)}40%{transform:translateY(-14px)}55%{transform:translateY(16px)}}
+.paper{animation:paper 3.2s linear infinite}
+@keyframes paper{0%{transform:translateX(-10px)}100%{transform:translateX(10px)}}
+.blink{animation:blink 4s infinite;transform-origin:center;transform-box:fill-box}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.ball{animation:fall 2.8s ease-in infinite;transform-box:fill-box}
+.ball:nth-of-type(2){animation-delay:.9s}.ball:nth-of-type(3){animation-delay:1.8s}
+@keyframes fall{0%{transform:translateY(-6px)}70%{transform:translateY(4px)}100%{transform:translateY(-6px)}}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+
+<!-- ============ NAV ============ -->
+<header class="wrap">
+  <nav class="nav" aria-label="Main">
+    <a class="brand" href="#top" aria-label="contract home">
+      <svg viewBox="0 0 80 80" aria-hidden="true"><rect x="4" y="4" width="72" height="72" rx="20" fill="#00F5A0" stroke="#0B0B12" stroke-width="5"/><path d="M50 27 A15 15 0 1 0 50 53" fill="none" stroke="#0B0B12" stroke-width="20" stroke-linecap="round"/><path d="M50 27 A15 15 0 1 0 50 53" fill="none" stroke="#FFF6E9" stroke-width="11" stroke-linecap="round"/><circle cx="58" cy="58" r="11" fill="#FF5FA2" stroke="#0B0B12" stroke-width="3.5"/><circle cx="55" cy="56" r="1.6" fill="#0B0B12"/><circle cx="61" cy="56" r="1.6" fill="#0B0B12"/><path d="M54 60 Q58 64 62 60" fill="none" stroke="#0B0B12" stroke-width="2" stroke-linecap="round"/></svg>
+      contract
+    </a>
+    <div class="nav-links">
+      <a href="#generator" data-goto="mint">Workshop</a>
+      <a href="#how">How it works</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#docs">Docs</a>
+    </div>
+    <div class="nav-right">
+      <a class="xbtn" id="xLink" href="https://x.com/UseContractPF" target="_blank" rel="noopener" aria-label="contract on X"><svg viewBox="0 0 24 24"><path d="M18.9 2H22l-7.6 8.7L23 22h-6.7l-5.2-6.9L5 22H2l8.2-9.3L1.5 2h6.9l4.7 6.3L18.9 2zm-1.2 18h1.7L7.4 3.9H5.6L17.7 20z"/></svg></a>
+      <button class="btn" id="walletBtn" type="button">Connect wallet</button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<!-- ============ HERO ============ -->
+<div class="wrap hero">
+  <div class="hero-left">
+    <div class="logo-tile">
+      <svg viewBox="0 0 140 140" aria-hidden="true"><rect x="6" y="6" width="128" height="128" rx="32" fill="#00F5A0" stroke="#0B0B12" stroke-width="6"/><rect x="30" y="22" width="80" height="96" rx="12" fill="#FFF6E9" stroke="#0B0B12" stroke-width="5"/><path d="M92 22 v16 h18" fill="#FFD23F" stroke="#0B0B12" stroke-width="5" stroke-linejoin="round"/><path d="M80 52 A20 20 0 1 0 80 86" fill="none" stroke="#0B0B12" stroke-width="22" stroke-linecap="round"/><path d="M80 52 A20 20 0 1 0 80 86" fill="none" stroke="#00F5A0" stroke-width="12" stroke-linecap="round"/><circle cx="92" cy="100" r="17" fill="#FF5FA2" stroke="#0B0B12" stroke-width="5"/><circle cx="87" cy="97" r="2.4" fill="#0B0B12"/><circle cx="97" cy="97" r="2.4" fill="#0B0B12"/><path d="M85 104 Q92 110 99 104" fill="none" stroke="#0B0B12" stroke-width="3" stroke-linecap="round"/></svg>
+      <span class="chip label">Solana · Pump.fun</span>
+    </div>
+    <h1 class="headline"><span class="l1">YOUR CA.</span><span class="l1">YOUR NAME.</span><span class="l2"><span>SIGNED</span></span><span class="l2"><span>BY YOU.</span></span></h1>
+    <p class="lede">Generate custom Solana contract addresses and launch your next memecoin on Pump.fun.</p>
+    <div class="notrand"><b>NOT RANDOM.</b> Real Ed25519 keys, made on your device.</div>
+
+    <svg class="mascot" viewBox="0 0 380 300" role="img" aria-label="The contract notary bot stamping your letters onto a deed">
+      <!-- letter balls -->
+      <g id="balls"><circle class="ball" cx="96" cy="34" r="20" fill="#00F5A0" stroke="#0B0B12" stroke-width="4"/><circle class="ball" cx="134" cy="22" r="20" fill="#FFF6E9" stroke="#0B0B12" stroke-width="4"/><circle class="ball" cx="170" cy="36" r="17" fill="#FF5FA2" stroke="#0B0B12" stroke-width="4"/>
+      <text id="b1" x="96" y="41" text-anchor="middle" font-family="Bagel Fat One, sans-serif" font-size="20">G</text><text id="b2" x="134" y="29" text-anchor="middle" font-family="Bagel Fat One, sans-serif" font-size="20">M</text><text id="b3" x="170" y="42" text-anchor="middle" font-family="Bagel Fat One, sans-serif" font-size="17">p</text></g>
+      <!-- hopper -->
+      <path d="M78 58 h112 l-22 38 h-68z" fill="#FFF6E9" stroke="#0B0B12" stroke-width="5" stroke-linejoin="round"/>
+      <!-- antenna -->
+      <line x1="58" y1="120" x2="58" y2="92" stroke="#0B0B12" stroke-width="5"/><circle cx="58" cy="86" r="9" fill="#FFD23F" stroke="#0B0B12" stroke-width="4"/>
+      <!-- seal ribbon -->
+      <path d="M210 110 l18 -6 l-4 18 z" fill="#8B5CF6" stroke="#0B0B12" stroke-width="4" stroke-linejoin="round"/>
+      <!-- body -->
+      <rect x="50" y="96" width="170" height="150" rx="38" fill="#FFF6E9" stroke="#0B0B12" stroke-width="6"/>
+      <path d="M53 180 h164 v28 a35 35 0 0 1 -35 35 h-94 a35 35 0 0 1 -35 -35z" fill="#00F5A0"/>
+      <rect x="50" y="96" width="170" height="150" rx="38" fill="none" stroke="#0B0B12" stroke-width="6"/>
+      <rect x="64" y="108" width="34" height="12" rx="6" fill="#fff" opacity=".9"/>
+      <!-- face -->
+      <circle cx="132" cy="172" r="44" fill="#FFF6E9" stroke="#0B0B12" stroke-width="5"/>
+      <ellipse class="blink" cx="118" cy="162" rx="5" ry="8" fill="#0B0B12"/><ellipse class="blink" cx="146" cy="162" rx="5" ry="8" fill="#0B0B12"/>
+      <path d="M112 184 Q132 204 152 184" fill="none" stroke="#0B0B12" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="104" cy="182" r="6" fill="#FF5FA2" opacity=".7"/><circle cx="160" cy="182" r="6" fill="#FF5FA2" opacity=".7"/>
+      <circle cx="196" cy="122" r="9" fill="none" stroke="#0B0B12" stroke-width="4"/><line x1="196" y1="122" x2="201" y2="117" stroke="#0B0B12" stroke-width="3"/>
+      <!-- deed paper -->
+      <g class="paper"><rect x="180" y="250" width="180" height="40" rx="8" fill="#FFFDF8" stroke="#0B0B12" stroke-width="4"/>
+      <text id="deed" x="270" y="276" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="15">GM····pump</text></g>
+      <!-- stamp arm -->
+      <g class="arm"><rect x="214" y="132" width="44" height="14" rx="7" fill="#FFD23F" stroke="#0B0B12" stroke-width="4"/>
+      <rect x="248" y="110" width="16" height="96" rx="8" fill="#FFF6E9" stroke="#0B0B12" stroke-width="4"/>
+      <circle cx="256" cy="104" r="15" fill="#FF8A3D" stroke="#0B0B12" stroke-width="4"/>
+      <rect x="230" y="206" width="52" height="24" rx="6" fill="#8B5CF6" stroke="#0B0B12" stroke-width="4"/>
+      <rect x="236" y="230" width="40" height="8" rx="3" fill="#FF5FA2" stroke="#0B0B12" stroke-width="3"/></g>
+    </svg>
+  </div>
+
+  <!-- generator -->
+  <div class="gen" id="generator">
+    <div class="tabs" role="tablist" aria-label="Address type">
+      <button class="tab" role="tab" id="tabWallet" aria-selected="true" type="button"><span class="ico" style="background:var(--violet)">◆</span>Wallet address</button>
+      <button class="tab" role="tab" id="tabMint" aria-selected="false" type="button"><span class="ico" style="background:var(--sun)">≡</span>Token mint</button>
+    </div>
+    <div class="fields">
+      <div class="field"><label for="pre">Starts with</label><input id="pre" value="GM" maxlength="8" autocomplete="off" spellcheck="false" placeholder="e.g. GM"></div>
+      <div class="field"><label for="suf">Ends with</label><input id="suf" value="pump" maxlength="8" autocomplete="off" spellcheck="false" placeholder="e.g. pump"></div>
+    </div>
+    <div class="err" id="err" hidden></div>
+    <div class="toggle-row"><button class="switch" id="caseSw" role="switch" aria-checked="false" aria-labelledby="caseLbl" type="button"></button><span id="caseLbl">Match exact capitalization</span></div>
+    <div class="preview" id="preview" aria-label="Address pattern preview"></div>
+    <div class="est">
+      <span class="label">Estimated time on this device</span>
+      <strong id="estTime">Measuring…</strong>
+      <p id="estNote">Half of searches finish within the first figure; nine in ten within the second.</p>
+    </div>
+    <div class="fee" id="feeBox">
+      <span class="label" id="feeLbl">Platform fee · 6 chars</span><span class="amt" id="feeAmt">—</span>
+      <p id="feeNote">Dynamic quote based on difficulty. Launch costs are separate.</p>
+    </div>
+    <button class="btn go" id="goBtn" type="button">Generate my contract →</button>
+    <p class="small">Runs in your browser · keys never leave your device</p>
+  </div>
+</div>
+
+<div class="marquee" aria-hidden="true"><div class="mq-track" id="mq"></div></div>
+
+<!-- ============ HOW ============ -->
+<section class="band sun" id="how">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="eyebrow label">Three steps</span><h2>How it works</h2></div></div>
+    <div class="steps">
+      <article class="step chunk"><span class="num">1</span><h3>Pick your letters</h3><p>Choose the characters that make your address unique.</p><div class="demo"><span class="pc" style="background:var(--mint);border:2px solid var(--ink);border-radius:6px;padding:0 4px;font-weight:700">GM</span><span class="ticker">· · · · · ·</span><span style="background:var(--pink);border:2px solid var(--ink);border-radius:6px;padding:0 4px;font-weight:700;margin-left:auto">pump</span></div></article>
+      <article class="step chunk"><span class="num">2</span><h3>Generate your address</h3><p>Search for a real Solana keypair matching your pattern.</p><div class="demo"><span class="ticker" id="demoTicker">7xKpQ…</span></div></article>
+      <article class="step chunk"><span class="num">3</span><h3>Launch on Pump.fun</h3><p>Use your custom mint address to launch your next memecoin.</p><div class="demo"><span class="pumpico" aria-hidden="true"></span><b>Ready to launch</b><span style="margin-left:auto">🚀</span></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TOKEN ============ -->
+<section class="band violet" id="token">
+  <div class="wrap token">
+    <div class="coin" aria-hidden="true"><svg viewBox="0 0 80 80"><path d="M52 24 A18 18 0 1 0 52 56" fill="none" stroke="#0B0B12" stroke-width="20" stroke-linecap="round"/><path d="M52 24 A18 18 0 1 0 52 56" fill="none" stroke="#FFF6E9" stroke-width="10" stroke-linecap="round"/></svg></div>
+    <div style="min-width:0">
+      <span class="eyebrow label">The platform's own coin</span>
+      <h2 style="font-size:clamp(38px,5.5vw,64px)">The official $CONTRACT token</h2>
+      <div class="ca-box chunk">
+        <span class="label" id="tokStatus">Checking…</span>
+        <div class="ca-row"><code id="caText">—</code><button class="btn sun" id="copyCa" type="button">Copy CA</button></div>
+        <p class="fine" style="opacity:1;color:#3c3832">This is the platform token only. It is never used as, or mixed up with, the mint addresses you generate.</p>
+      </div>
+      <div class="mets">
+        <div class="met"><span class="label">Market cap</span><b id="mMc">—</b></div>
+        <div class="met"><span class="label">Price</span><b id="mPx">—</b></div>
+        <div class="met"><span class="label">24h volume</span><b id="mVol">—</b></div>
+        <div class="met"><span class="label">Liquidity</span><b id="mLiq">—</b></div>
+      </div>
+      <div class="links"><a class="btn mintb" id="pfLink" href="https://pump.fun" target="_blank" rel="noopener">View on Pump.fun</a><a class="btn cream" id="dsLink" href="https://dexscreener.com/solana" target="_blank" rel="noopener">Dexscreener</a></div>
+      <p class="fine" id="tokNote">Waiting for the first check.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATS ============ -->
+<section class="band ink" id="stats">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="eyebrow label">Live counter</span><h2 style="color:var(--cream)">Live from the workshop</h2></div></div>
+    <div class="stats">
+      <div class="stat"><span class="label">Addresses generated</span><b id="sGen">0</b></div>
+      <div class="stat"><span class="label">Mints made</span><b id="sMint">0</b></div>
+      <div class="stat"><span class="label">Longest pattern</span><b id="sLong">—</b></div>
+      <div class="stat"><span class="label">Keys checked</span><b id="sKeys">0</b></div>
+    </div>
+    <p class="fine" style="color:var(--cream)">Counted in this browser. Nothing about your keys is ever sent anywhere.</p>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="band sky" id="pricing">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="eyebrow label">Pricing</span><h2>A price for your pattern.</h2></div>
+      <p style="max-width:44ch;margin:0;font-weight:600">The platform fee pays for your custom address. It is separate from what Solana and Pump.fun charge at launch, and every part is shown before you sign.</p></div>
+    <div class="prices">
+      <article class="plan chunk"><span class="tag label">Available now</span><h3>Wallet address</h3><div class="big">Free</div><p>Up to 3 characters. Longer wallet patterns use the token mint prices.</p>
+        <ul><li>Secure browser generation</li><li>No account required</li><li>Private key export</li><li>No server-side key storage</li></ul>
+        <a class="btn" href="#generator" data-goto="wallet">Find a free wallet →</a></article>
+      <article class="plan mint chunk"><span class="tag label">Custom token mint</span><h3>Token mint</h3><div class="big">0.01 SOL <small>and up</small></div>
+        <table class="tbl"><tr><td>1–3 characters</td><td>0.01 SOL</td></tr><tr><td>4 characters</td><td>0.025 SOL</td></tr><tr><td>5 characters</td><td>0.075 SOL</td></tr><tr><td>6 characters</td><td>0.215 SOL</td></tr><tr><td>7–8 characters</td><td>dynamic quote</td></tr></table>
+        <p style="font-size:14px">Prefix and suffix characters are added together: <b>GM</b>…<b>pu</b> is 4. Quotes follow the real difficulty of your pattern and are refused if your device can't finish the search within 24 hours.</p>
+        <ul><li>Custom mint generation</li><li>Pump.fun-ready keypair</li><li>Solana CLI + Phantom key formats</li><li>Paid in SOL, verified on-chain</li></ul>
+        <table class="tbl"><tr><td>Solana network fee</td><td>≈ 0.000005 SOL</td></tr><tr><td>Pump.fun launch costs</td><td>shown by Pump.fun</td></tr><tr><td>Optional first buy</td><td>your choice</td></tr></table>
+        <a class="btn pink" href="#generator" data-goto="mint">Make a coin address →</a></article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GALLERY ============ -->
+<section class="band pink" id="gallery">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="eyebrow label">Gallery</span><h2 style="color:var(--cream);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:4px 5px 0 var(--ink)">Fresh off the belt</h2></div>
+      <a class="btn cream" href="#generator">Add yours →</a></div>
+    <div class="belt"><div class="belt-track" id="belt"></div></div>
+    <p class="fine" style="font-weight:600">Green cards are pattern samples. Your own addresses appear in lime once you make them (public addresses only, never keys).</p>
+  </div>
+</section>
+
+<!-- ============ DOCS ============ -->
+<section class="band cream" id="docs">
+  <div class="wrap">
+    <div class="sec-head"><div><span class="eyebrow label" style="background:var(--sun)">Docs</span><h2>Read the fine print</h2></div></div>
+    <div class="faq">
+      <details open><summary>How does contract make my address?</summary><p>Your browser creates real Ed25519 keypairs, encodes each public key in base58 and checks it against your letters. It runs on every CPU core you have, in parallel, until one matches. The first match is yours.</p></details>
+      <details><summary>Do my keys ever leave my device?</summary><p>No. Generation happens in your browser tab. The private key is shown only to you and never stored or sent. Copy or download it before you close the window, because it cannot be recovered.</p></details>
+      <details><summary>Which characters can I use?</summary><p>Solana addresses use base58: digits 1–9 and letters except 0, O, I and lowercase l. Each extra character makes the search about 58 times longer (about 34 times when capitalization doesn't matter).</p></details>
+      <details><summary>How do I launch the mint on Pump.fun?</summary><p>Pump.fun mints end in "pump", so keep that as your suffix. Download the keypair file and import it into a launch tool that accepts a custom mint keypair. The keypair signs the mint creation once, then the address is your coin's CA.</p></details>
+      <details><summary>What formats can I export?</summary><p>A base58 secret key that Phantom and Solflare import directly, and a JSON byte array that the Solana CLI reads as a keypair file.</p></details>
+      <details><summary>What do I pay for?</summary><p>Wallet patterns up to 3 characters are free. Longer patterns and token mints carry a small platform fee in SOL, sent from your connected wallet before the search starts. Network and Pump.fun launch fees are separate.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="band tang cta">
+  <div class="wrap"><h2>Stop launching random.</h2><p>Make your contract yours.</p><a class="btn dark" href="#generator" data-goto="mint" style="font-size:18px;padding:14px 26px">Open the workshop →</a></div>
+</section>
+</main>
+
+<footer><div class="wrap foot">
+  <div><div style="font-family:var(--display);font-size:30px">contract</div><small>Custom Solana addresses, made on your device.</small></div>
+  <div><a href="#generator">Workshop</a><a href="#how">How it works</a><a href="#gallery">Gallery</a><a href="#docs">Docs</a><a id="xLink2" href="https://x.com/UseContractPF" target="_blank" rel="noopener">@UseContractPF</a></div>
+</div></footer>
+
+<!-- modals -->
+<div class="modal" id="runModal" hidden><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="runT">
+  <svg class="stampbig" viewBox="0 0 90 90" aria-hidden="true"><circle cx="45" cy="16" r="12" fill="#FF8A3D" stroke="#0B0B12" stroke-width="4"/><rect x="37" y="24" width="16" height="36" rx="8" fill="#FFF6E9" stroke="#0B0B12" stroke-width="4"/><rect x="18" y="58" width="54" height="20" rx="6" fill="#8B5CF6" stroke="#0B0B12" stroke-width="4"/></svg>
+  <h3 id="runT" style="text-align:center">Stamping keys…</h3>
+  <p style="text-align:center;margin:0" id="runPat"></p>
+  <div class="prog"><i id="progBar"></i></div>
+  <div class="pgrid"><div><span class="label">Checked</span><b id="pTries">0</b></div><div><span class="label">Keys/sec</span><b id="pRate">0</b></div><div><span class="label">Elapsed</span><b id="pTime">0s</b></div></div>
+  <div class="live" id="pLive">warming up workers…</div>
+  <p class="small" id="pChance">Chance found by now: 0%</p>
+  <div class="row" style="justify-content:center"><button class="btn cream" id="cancelBtn" type="button">Stop search</button></div>
+</div></div>
+
+<div class="modal" id="resModal" hidden><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="resT">
+  <button class="close" id="resClose" type="button" aria-label="Close">✕</button>
+  <span class="chip label" style="background:var(--lime)">Signed &amp; sealed</span>
+  <h3 id="resT" style="margin-top:12px">Your contract is ready</h3>
+  <div class="result-addr" id="resAddr"></div>
+  <div class="row"><button class="btn" id="copyAddr" type="button">Copy address</button></div>
+  <div class="warn">Save your private key now. It exists only in this tab and can't be recovered later.</div>
+  <span class="label">Private key (Phantom / Solflare)</span>
+  <div class="secret" id="resKey" style="margin-top:6px"></div>
+  <div class="row"><button class="btn sun" id="revealKey" type="button">Reveal key</button><button class="btn cream" id="copyKey" type="button">Copy key</button><button class="btn cream" id="dlKey" type="button">Download keypair .json</button></div>
+  <div class="row" id="launchRow"><a class="btn pink" href="https://pump.fun/create" target="_blank" rel="noopener">Launch on Pump.fun →</a></div>
+</div></div>
+
+<canvas id="confetti"></canvas>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+/* ===================== CONFIG — edit these before deploying ===================== */
+const CONFIG = {
+  X_URL: "https://x.com/UseContractPF", // your project's X link
+  CA: "",                            // $CONTRACT token CA (leave "" until launch)
+  TREASURY: "",                      // Solana address that receives platform fees ("" = fees not charged)
+  RPC: "https://api.mainnet-beta.solana.com" // swap for a Helius/QuickNode RPC for reliable payments
+};
+/* ============================================================================ */
+
+const ALPH = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+const $ = id => document.getElementById(id);
+const S = { kind:"wallet", exact:false, rate:null, wallet:null, workers:[], running:false };
+const store = { get(k,d){try{const v=localStorage.getItem("contract_"+k);return v?JSON.parse(v):d}catch(e){return d}}, set(k,v){try{localStorage.setItem("contract_"+k,JSON.stringify(v))}catch(e){}} };
+
+$("xLink").href = $("xLink2").href = CONFIG.X_URL;
+
+/* ---------- worker (blob) ---------- */
+const WORKER_SRC = `
+const ALPH="${ALPH}";
+function b58(bytes){let d=[0];for(let i=0;i<bytes.length;i++){let c=bytes[i];for(let j=0;j<d.length;j++){c+=d[j]<<8;d[j]=c%58;c=(c/58)|0;}while(c){d.push(c%58);c=(c/58)|0;}}let s="";for(let k=0;k<bytes.length&&bytes[k]===0;k++)s+="1";for(let q=d.length-1;q>=0;q--)s+=ALPH[d[q]];return s;}
+let mode=null;
+async function init(){try{await crypto.subtle.generateKey({name:"Ed25519"},true,["sign","verify"]);mode="wc";}catch(e){importScripts("https://cdnjs.cloudflare.com/ajax/libs/tweetnacl/1.0.3/nacl-fast.min.js");mode="nacl";}}
+async function one(){if(mode==="wc"){const k=await crypto.subtle.generateKey({name:"Ed25519"},true,["sign","verify"]);const pub=new Uint8Array(await crypto.subtle.exportKey("raw",k.publicKey));return {pub,k};}const kp=nacl.sign.keyPair();return {pub:kp.publicKey,sk:kp.secretKey};}
+async function secret(r){if(r.sk)return Array.from(r.sk);const p8=new Uint8Array(await crypto.subtle.exportKey("pkcs8",r.k.privateKey));const out=new Uint8Array(64);out.set(p8.slice(p8.length-32),0);out.set(r.pub,32);return Array.from(out);}
+onmessage=async e=>{const {pre,suf,exact,bench}=e.data;if(!mode)await init();
+ const P=exact?pre:pre.toLowerCase(),X=exact?suf:suf.toLowerCase();let n=0,last=Date.now(),t0=Date.now();
+ while(true){const batch=await Promise.all(Array.from({length:mode==="wc"?48:16},one));
+  for(const r of batch){n++;let a=b58(r.pub);const c=exact?a:a.toLowerCase();
+   if(!bench&&c.startsWith(P)&&c.endsWith(X)){postMessage({t:"found",addr:a,sk:await secret(r),n});return;}}
+  const now=Date.now();if(now-last>250){postMessage({t:"tick",n,sample:b58(batch[0].pub)});n=0;last=now;}
+  if(bench&&now-t0>bench){postMessage({t:"bench",n});return;}}};
+`;
+const workerURL = URL.createObjectURL(new Blob([WORKER_SRC],{type:"text/javascript"}));
+const cores = Math.max(2, Math.min(8, navigator.hardwareConcurrency || 4));
+
+function bench(){
+  return new Promise(res=>{
+    let total=0, done=0; const ws=[];
+    const ms=1600, t0=performance.now();
+    for(let i=0;i<cores;i++){
+      let w; try{ w=new Worker(workerURL);}catch(e){ res(null); return; }
+      ws.push(w);
+      w.onmessage=e=>{ total+=e.data.n; if(e.data.t==="bench"){ done++; if(done===cores){ ws.forEach(x=>x.terminate()); res(total/((performance.now()-t0)/1000)); } } };
+      w.onerror=()=>{ done++; if(done===cores){ ws.forEach(x=>x.terminate()); res(total? total/((performance.now()-t0)/1000):null);} };
+      w.postMessage({pre:"",suf:"",exact:false,bench:ms});
+    }
+  });
+}
+
+/* ---------- difficulty / fee ---------- */
+function charP(c, exact){
+  if(exact) return 1/58;
+  const lo=c.toLowerCase(), up=c.toUpperCase(); let n=0;
+  if(ALPH.includes(lo)) n++; if(up!==lo && ALPH.includes(up)) n++;
+  return Math.max(n,1)/58;
+}
+function expected(pre,suf,exact){ let p=1; for(const c of pre+suf) p*=charP(c,exact); return 1/p; }
+function fmt(sec){
+  if(sec<1) return "under 1 sec"; if(sec<60) return Math.round(sec)+" sec";
+  if(sec<3600) return (sec/60).toFixed(sec<600?1:0)+" min"; if(sec<86400) return (sec/3600).toFixed(1)+" hr";
+  if(sec<86400*365) return (sec/86400).toFixed(1)+" days"; return "years";
+}
+function feeFor(kind,n,t90){
+  if(n===0) return {sol:0,note:"Type some letters to get a quote."};
+  if(t90>86400) return {sol:null,note:"Refused: this device would need more than 24 hours. Try fewer characters or turn off exact capitalization."};
+  if(kind==="wallet" && n<=3) return {sol:0,note:"Free for wallet patterns up to 3 characters."};
+  const table={1:.01,2:.01,3:.01,4:.025,5:.075,6:.215};
+  if(table[n]) return {sol:table[n],note:n>=5?"Dynamic quote based on difficulty. Launch costs are separate.":"Flat price. Launch costs are separate."};
+  const sol=Math.min(5, +(0.215*Math.pow(t90/600,0.35)+0.4*(n-6)).toFixed(3));
+  return {sol,note:"Dynamic quote based on difficulty. Launch costs are separate."};
+}
+
+/* ---------- UI update ---------- */
+function clean(v){ return v.replace(/\s/g,""); }
+function validate(){
+  const pre=clean($("pre").value), suf=clean($("suf").value);
+  const badChars=[...new Set((pre+suf).split("").filter(c=>!ALPH.includes(c)))];
+  let msg="";
+  $("pre").classList.toggle("bad",[...pre].some(c=>!ALPH.includes(c)));
+  $("suf").classList.toggle("bad",[...suf].some(c=>!ALPH.includes(c)));
+  if(badChars.length) msg=`"${badChars.join('", "')}" can't appear in a Solana address. Base58 skips 0, O, I and l.`;
+  else if((pre+suf).length>8) msg="Keep prefix and suffix to 8 characters combined.";
+  return {pre,suf,msg};
+}
+function update(){
+  const {pre,suf,msg}=validate();
+  $("err").hidden=!msg; $("err").textContent=msg;
+  const n=(pre+suf).length;
+  const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+  $("preview").innerHTML=(pre?`<span class="pc">${esc(pre)}</span>`:"")+`<span class="dots">${"•".repeat(Math.max(4,30-n*2))}</span>`+(suf?`<span class="sc">${esc(suf)}</span>`:"");
+  // mascot balls + deed
+  const letters=(pre+suf).padEnd(3,"·");
+  $("b1").textContent=letters[0]; $("b2").textContent=letters[1]; $("b3").textContent=letters[2];
+  $("deed").textContent=(pre||"")+"····"+(suf||"");
+  const E=expected(pre,suf,S.exact);
+  let t50=null,t90=null;
+  if(S.rate){ t50=Math.log(2)*E/S.rate; t90=Math.log(10)*E/S.rate; }
+  if(!S.rate) { $("estTime").textContent=S.rate===0?"Your browser blocked the benchmark":"Measuring…"; }
+  else if(n===0) $("estTime").textContent="Instant";
+  else $("estTime").textContent=`${fmt(t50)} – ${fmt(t90)}`;
+  $("estNote").textContent=S.rate?`Half of searches finish within the first figure; nine in ten within the second. Measured ${Math.round(S.rate).toLocaleString()} keys/sec on this device.`:"Half of searches finish within the first figure; nine in ten within the second.";
+  const f=feeFor(S.kind,n,t90||0);
+  const box=$("feeBox"); box.classList.toggle("free",f.sol===0); box.classList.toggle("nope",f.sol===null);
+  $("feeLbl").textContent=`Platform fee · ${n} char${n===1?"":"s"}`;
+  $("feeAmt").textContent=f.sol===null?"—":f.sol===0?"FREE":f.sol+" SOL";
+  $("feeNote").textContent=f.note;
+  const go=$("goBtn");
+  go.disabled=!!msg||n===0||f.sol===null;
+  go.textContent=f.sol? `Generate my contract · ${f.sol} SOL →` : "Generate my contract →";
+  S.quote={pre,suf,n,E,fee:f.sol};
+}
+function setKind(k){
+  S.kind=k;
+  $("tabWallet").setAttribute("aria-selected",k==="wallet"); $("tabMint").setAttribute("aria-selected",k==="mint");
+  if(k==="mint" && !clean($("suf").value)) $("suf").value="pump";
+  update();
+}
+$("tabWallet").onclick=()=>setKind("wallet");
+$("tabMint").onclick=()=>setKind("mint");
+$("pre").oninput=$("suf").oninput=update;
+$("caseSw").onclick=()=>{ S.exact=!S.exact; $("caseSw").setAttribute("aria-checked",S.exact); update(); };
+document.querySelectorAll("[data-goto]").forEach(a=>a.addEventListener("click",()=>setKind(a.dataset.goto)));
+
+/* ---------- toast ---------- */
+let tt; function toast(m){ const t=$("toast"); t.textContent=m; t.hidden=false; clearTimeout(tt); tt=setTimeout(()=>t.hidden=true,3200); }
+async function copy(text,label){ try{ await navigator.clipboard.writeText(text); toast(label+" copied"); }catch(e){ toast("Copy blocked here. Select the text and copy it manually."); } }
+
+/* ---------- wallet ---------- */
+function provider(){ return (window.phantom && window.phantom.solana) || window.solflare || window.solana || null; }
+function short(a){ return a.slice(0,4)+"…"+a.slice(-4); }
+$("walletBtn").onclick=async()=>{
+  const p=provider();
+  if(!p){ toast("No Solana wallet found. Install Phantom or Solflare."); return; }
+  try{
+    if(S.wallet){ await p.disconnect(); S.wallet=null; $("walletBtn").textContent="Connect wallet"; return; }
+    const r=await p.connect(); S.wallet=(r && r.publicKey ? r.publicKey : p.publicKey).toString();
+    $("walletBtn").textContent=short(S.wallet); toast("Wallet connected");
+  }catch(e){ toast("Wallet connection was cancelled."); }
+};
+function loadWeb3(){ return new Promise((res,rej)=>{ if(window.solanaWeb3) return res(); const s=document.createElement("script"); s.src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"; s.onload=res; s.onerror=()=>rej(new Error("web3 failed")); document.head.appendChild(s); }); }
+async function payFee(sol){
+  if(!sol || !CONFIG.TREASURY) return true;
+  const p=provider();
+  if(!S.wallet){ toast("Connect your wallet to pay the "+sol+" SOL fee."); $("walletBtn").click(); return false; }
+  try{
+    await loadWeb3(); const W=window.solanaWeb3;
+    const conn=new W.Connection(CONFIG.RPC,"confirmed");
+    const from=new W.PublicKey(S.wallet);
+    const tx=new W.Transaction().add(W.SystemProgram.transfer({fromPubkey:from,toPubkey:new W.PublicKey(CONFIG.TREASURY),lamports:Math.round(sol*1e9)}));
+    tx.feePayer=from; tx.recentBlockhash=(await conn.getLatestBlockhash()).blockhash;
+    toast("Approve the "+sol+" SOL fee in your wallet");
+    const {signature}=await p.signAndSendTransaction(tx);
+    await conn.confirmTransaction(signature,"confirmed");
+    toast("Fee confirmed on-chain"); return true;
+  }catch(e){ toast("Payment didn't go through: "+(e.message||"cancelled")); return false; }
+}
+
+/* ---------- search ---------- */
+let tick;
+$("goBtn").onclick=async()=>{
+  const q=S.quote; if(!q||S.running) return;
+  if(!(await payFee(q.fee))) return;
+  start(q);
+};
+function start(q){
+  S.running=true; let tries=0, t0=performance.now(), recent=[];
+  $("runPat").innerHTML=`<code style="font-family:var(--mono)">${q.pre||""}…${q.suf||""}</code> · ${S.exact?"exact case":"any case"}`;
+  $("runModal").hidden=false; $("progBar").style.width="0";
+  const stats=store.get("stats",{gen:0,mint:0,long:"",keys:0});
+  for(let i=0;i<cores;i++){
+    const w=new Worker(workerURL); S.workers.push(w);
+    w.onmessage=e=>{
+      const d=e.data;
+      if(d.t==="tick"){ tries+=d.n; recent.push([performance.now(),d.n]); $("pLive").textContent=d.sample; }
+      if(d.t==="found"){ tries+=d.n; stop(); stats.keys+=tries; found(d.addr,d.sk,q,stats); }
+    };
+    w.postMessage({pre:q.pre,suf:q.suf,exact:S.exact});
+  }
+  tick=setInterval(()=>{
+    const el=(performance.now()-t0)/1000;
+    const now=performance.now(); recent=recent.filter(r=>now-r[0]<2000);
+    const rate=recent.reduce((a,r)=>a+r[1],0)/2;
+    const chance=1-Math.exp(-tries/q.E);
+    $("pTries").textContent=tries.toLocaleString(); $("pRate").textContent=Math.round(rate).toLocaleString();
+    $("pTime").textContent=fmt(el).replace("under 1 sec","0 sec"); $("progBar").style.width=(chance*100).toFixed(1)+"%";
+    $("pChance").textContent=`Chance found by now: ${(chance*100).toFixed(1)}%`;
+  },250);
+  $("cancelBtn").onclick=()=>{ stop(); stats.keys+=tries; store.set("stats",stats); renderStats(); toast("Search stopped"); };
+}
+function stop(){ S.workers.forEach(w=>w.terminate()); S.workers=[]; clearInterval(tick); S.running=false; $("runModal").hidden=true; }
+
+function b58enc(bytes){ let d=[0]; for(const b of bytes){ let c=b; for(let j=0;j<d.length;j++){ c+=d[j]<<8; d[j]=c%58; c=(c/58)|0;} while(c){ d.push(c%58); c=(c/58)|0; } } let s=""; for(let k=0;k<bytes.length&&bytes[k]===0;k++) s+="1"; for(let q=d.length-1;q>=0;q--) s+=ALPH[d[q]]; return s; }
+function hl(addr,pre,suf){ const a=addr.slice(0,pre.length), z=suf?addr.slice(-suf.length):"", mid=addr.slice(pre.length, suf?addr.length-suf.length:addr.length); return (a?`<em>${a}</em>`:"")+mid+(z?`<i>${z}</i>`:""); }
+let lastKey=null;
+function found(addr,sk,q,stats){
+  stats.gen++; if(S.kind==="mint") stats.mint++;
+  if((q.pre+q.suf).length > (stats.long||"").replace("…","").length) stats.long=(q.pre||"")+"…"+(q.suf||"");
+  store.set("stats",stats); renderStats();
+  const mine=store.get("mine",[]); mine.unshift({a:addr,p:q.pre.length,s:q.suf.length,k:S.kind}); store.set("mine",mine.slice(0,12)); renderBelt();
+  lastKey={addr,sk};
+  $("resAddr").innerHTML=hl(addr,q.pre,q.suf);
+  $("resKey").textContent=b58enc(new Uint8Array(sk)); $("resKey").classList.remove("show"); $("revealKey").textContent="Reveal key";
+  $("resT").textContent=S.kind==="mint"?"Your mint is ready":"Your wallet is ready";
+  $("launchRow").hidden=S.kind!=="mint";
+  $("resModal").hidden=false; confetti();
+}
+$("resClose").onclick=()=>{ $("resModal").hidden=true; };
+$("copyAddr").onclick=()=>lastKey&&copy(lastKey.addr,"Address");
+$("copyKey").onclick=()=>lastKey&&copy($("resKey").textContent,"Private key");
+$("revealKey").onclick=()=>{ const k=$("resKey"); k.classList.toggle("show"); $("revealKey").textContent=k.classList.contains("show")?"Hide key":"Reveal key"; };
+$("dlKey").onclick=()=>{ if(!lastKey) return; try{ const b=new Blob([JSON.stringify(lastKey.sk)],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=lastKey.addr+".json"; document.body.appendChild(a); a.click(); a.remove(); }catch(e){ toast("Download blocked here. Use Copy key instead."); } };
+
+/* ---------- stats ---------- */
+function renderStats(){ const s=store.get("stats",{gen:0,mint:0,long:"",keys:0}); $("sGen").textContent=s.gen.toLocaleString(); $("sMint").textContent=s.mint.toLocaleString(); $("sLong").textContent=s.long||"—"; $("sKeys").textContent=s.keys>=1e6?(s.keys/1e6).toFixed(1)+"M":s.keys.toLocaleString(); }
+
+/* ---------- belt + marquee ---------- */
+function rnd(n){ let s=""; for(let i=0;i<n;i++) s+=ALPH[(Math.random()*58)|0]; return s; }
+const SAMPLES=[["GM","pump","mint"],["CAFE","","wallet"],["","pump","mint"],["SoL","","wallet"],["Moon","pump","mint"],["BAG","","wallet"],["Dog","pump","mint"],["777","","wallet"]];
+const sampleCards=SAMPLES.map(([p,s,k])=>({a:p+rnd(44-p.length-s.length)+s,p:p.length,s:s.length,k,sample:true}));
+function renderBelt(){
+  const mine=store.get("mine",[]).map(x=>({...x,sample:false}));
+  const list=[...mine,...sampleCards];
+  const html=list.map(c=>`<div class="card ${c.sample?"":"mine"}"><div class="meta"><span class="k">${c.k==="mint"?"Token mint":"Wallet"}</span><span>${c.sample?"Sample":"Yours"}</span></div><div class="addr">${hl(c.a,c.a.slice(0,c.p),c.s?c.a.slice(-c.s):"")}</div><div class="meta"><span>${c.p+c.s} chars</span><span>✦</span></div></div>`).join("");
+  $("belt").innerHTML=html+html;
+}
+(function marquee(){
+  const cols=["var(--mint)","var(--pink)","var(--sun)","var(--sky)","var(--violet)","var(--tang)","var(--lime)"];
+  const items=["GM…pump","CAFE…","…pump","SoL…","Moon…pump","BAG…","Dog…pump","777…","WAGMI","NOT RANDOM","SIGNED BY YOU"];
+  const h=items.map((t,i)=>`<span style="background:${cols[i%cols.length]};color:#0B0B12">★ ${t}</span>`).join("");
+  $("mq").innerHTML=h+h;
+})();
+setInterval(()=>{ $("demoTicker").textContent=rnd(6)+"…"+rnd(4); },220);
+
+/* ---------- token ---------- */
+async function token(){
+  const ca=CONFIG.CA.trim();
+  if(!ca){ $("tokStatus").textContent="Not launched yet"; $("caText").textContent="CA drops on X"; $("tokNote").textContent="Follow us on X for the launch post."; $("pfLink").href=CONFIG.X_URL; $("pfLink").textContent="Follow on X"; return; }
+  $("caText").textContent=ca; $("pfLink").href="https://pump.fun/coin/"+ca; $("dsLink").href="https://dexscreener.com/solana/"+ca;
+  const money=v=>v==null?"—":v>=1e6?"$"+(v/1e6).toFixed(2)+"M":v>=1e3?"$"+(v/1e3).toFixed(1)+"K":"$"+(+v).toFixed(2);
+  try{
+    const r=await fetch("https://api.dexscreener.com/latest/dex/tokens/"+ca); const j=await r.json(); const p=(j.pairs||[])[0];
+    if(!p){ $("tokStatus").textContent="Live"; $("tokNote").textContent="No market data yet."; return; }
+    $("tokStatus").textContent="Live"; $("mMc").textContent=money(p.marketCap||p.fdv); $("mPx").textContent="$"+(+p.priceUsd).toPrecision(3);
+    $("mVol").textContent=money(p.volume&&p.volume.h24); $("mLiq").textContent=money(p.liquidity&&p.liquidity.usd);
+    $("tokNote").textContent="Updated "+new Date().toLocaleTimeString();
+  }catch(e){ $("tokStatus").textContent="Live"; $("tokNote").textContent="Market data unavailable right now."; }
+}
+$("copyCa").onclick=()=>{ if(CONFIG.CA) copy(CONFIG.CA,"CA"); else toast("CA isn't out yet. Check our X."); };
+setInterval(()=>CONFIG.CA&&token(),60000);
+
+/* ---------- confetti ---------- */
+function confetti(){
+  const c=$("confetti"), x=c.getContext("2d"); c.width=innerWidth; c.height=innerHeight;
+  const cols=["#00F5A0","#FF5FA2","#FFD23F","#8B5CF6","#3EC5FF","#FF8A3D"];
+  const P=Array.from({length:160},()=>({x:innerWidth/2,y:innerHeight/2,vx:(Math.random()-.5)*16,vy:Math.random()*-16-4,r:Math.random()*8+4,c:cols[(Math.random()*6)|0],a:Math.random()*6}));
+  let f=0; (function draw(){ x.clearRect(0,0,c.width,c.height); P.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=.45; p.a+=.2; x.save(); x.translate(p.x,p.y); x.rotate(p.a); x.fillStyle=p.c; x.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6); x.restore(); }); if(++f<140) requestAnimationFrame(draw); else x.clearRect(0,0,c.width,c.height); })();
+}
+
+/* ---------- boot ---------- */
+renderStats(); renderBelt(); token(); update();
+bench().then(r=>{ S.rate=r||0; update(); });
+</script>
+</html>
